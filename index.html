@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PeakGrades LM</title>
+
+<style>
+:root{
+  --blue:#0a66ff;
+  --green:#00c48c;
+  --bg:#f4f7fb;
+  --card:#ffffff;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial;
+}
+
+body{
+  background:var(--bg);
+}
+
+/* APP */
+.app{
+  display:flex;
+  height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:260px;
+  background:linear-gradient(180deg,var(--blue),var(--green));
+  color:white;
+  padding:15px;
+}
+
+.sidebar h2{
+  margin-bottom:10px;
+}
+
+.sidebar button{
+  width:100%;
+  margin:5px 0;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+/* TOP */
+.top{
+  height:60px;
+  background:white;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 15px;
+  border-bottom:1px solid #ddd;
+}
+
+/* WORKSPACE */
+.workspace{
+  flex:1;
+  display:flex;
+}
+
+/* DOC */
+.doc{
+  flex:2;
+  background:white;
+  margin:10px;
+  padding:10px;
+  border-radius:10px;
+}
+
+/* CHAT */
+.chat{
+  flex:1;
+  background:white;
+  margin:10px;
+  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+}
+
+#box{
+  flex:1;
+  padding:10px;
+  overflow:auto;
+}
+
+.input{
+  display:flex;
+  padding:10px;
+  border-top:1px solid #eee;
+}
+
+.input input{
+  flex:1;
+  padding:10px;
+}
+
+.input button{
+  background:var(--blue);
+  color:white;
+  border:none;
+  padding:10px;
+}
+
+/* MSG */
+.msg{
+  margin:5px 0;
+  padding:8px;
+  border-radius:6px;
+}
+
+.user{background:#e7f0ff;}
+.ai{background:#e7fff3;}
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>📚 PeakGrades</h2>
+
+  <input type="file" id="file">
+
+  <button onclick="upload()">Upload PDF</button>
+
+  <button onclick="mode='chat'">Chat</button>
+  <button onclick="mode='notes'">Notes</button>
+  <button onclick="mode='flash'">Flashcards</button>
+  <button onclick="mode='ppt'">PPT</button>
+  <button onclick="mode='podcast'">Podcast</button>
+  <button onclick="mode='video'">Video</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="top">
+    <div>PeakGrades LM Workspace</div>
+    <div id="status">🔴 Not Connected</div>
+  </div>
+
+  <div class="workspace">
+
+    <div class="doc" id="doc">
+      <h3>Document Viewer</h3>
+      <p>No document loaded</p>
+    </div>
+
+    <div class="chat">
+
+      <div id="box"></div>
+
+      <div class="input">
+        <input id="q" placeholder="Ask PeakGrades AI...">
+        <button onclick="send()">→</button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</div>
+
+<script>
+
+let mode="chat";
+
+/* UPLOAD */
+function upload(){
+  const f=document.getElementById("file").files[0];
+  if(!f)return;
+
+  document.getElementById("doc").innerHTML=
+  "<h3>Loaded:</h3><p>"+f.name+"</p>";
+}
+
+/* CHAT STREAM (BACKEND READY) */
+async function send(){
+
+  let q=document.getElementById("q").value;
+
+  add("user",q);
+
+  /* REAL BACKEND HOOK:
+  const res = await fetch("http://localhost:8000/chat/stream?query="+q,{method:"POST"});
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+
+  let text="";
+  while(true){
+    const {value,done}=await reader.read();
+    if(done)break;
+    text+=decoder.decode(value);
+    updateAI(text);
+  }
+  */
+
+  // MOCK RESPONSE
+  setTimeout(()=>{
+    add("ai","AI Response (connect FastAPI + Gemini + RAG)");
+  },500);
+}
+
+/* ADD MESSAGE */
+function add(type,text){
+  document.getElementById("box").innerHTML+=
+  `<div class='msg ${type}'>${text}</div>`;
+}
+
+/* TOOL ENGINE */
+function runTool(){
+
+  let q=document.getElementById("q").value;
+
+  let out="";
+
+  if(mode==="notes") out="📚 Notes: "+q;
+  if(mode==="flash") out="🧠 Flashcards: "+q;
+  if(mode==="ppt") out="📊 PPT: "+q;
+  if(mode==="podcast") out="🎙 Podcast: "+q;
+  if(mode==="video") out="🎬 Video: "+q;
+
+  add("ai",out);
+}
+
+</script>
+
+</body>
+</html>
